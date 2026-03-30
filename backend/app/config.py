@@ -1,7 +1,7 @@
 """
 Application configuration via pydantic-settings.
 Reads from backend/.env (never committed).
-All values have safe defaults except XAI_API_KEY (required).
+All values have safe defaults except API_KEY (required for LLM).
 """
 
 from functools import lru_cache
@@ -13,11 +13,15 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
+        extra="ignore",
     )
 
-    # xAI Grok LLM
-    xai_api_key: str
-    grok_model: str = "grok-3"
+    # LLM API Configuration (supports Groq, xAI, etc.)
+    # Groq: api_key is your Groq API key, base_url is auto-configured
+    # xAI: set base_url to "https://api.x.ai/v1"
+    api_key: str
+    base_url: str = "https://api.groq.com/openai/v1"
+    llm_model: str = "llama-3.3-70b-versatile"
 
     # Embeddings (local — no API cost)
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"

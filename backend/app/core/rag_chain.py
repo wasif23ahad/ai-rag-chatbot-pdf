@@ -49,6 +49,7 @@ ABSOLUTE RULES — never break these:
 # Response dataclass
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class RAGResponse:
     answer: str
@@ -62,6 +63,7 @@ class RAGResponse:
 # ---------------------------------------------------------------------------
 # RAG Chain
 # ---------------------------------------------------------------------------
+
 
 class RAGChain:
     """
@@ -87,27 +89,19 @@ class RAGChain:
 
     def _build_llm(self):
         """
-        Instantiate the Grok LLM client.
-        Tries langchain-xai (ChatXAI) first; falls back to ChatOpenAI with xAI base_url.
+        Instantiate the LLM client using OpenAI-compatible API.
+        Supports Groq, xAI, and other OpenAI-compatible providers via base_url.
         temperature=0.0 is non-negotiable for factual RAG — removes creative variance.
         """
-        try:
-            from langchain_xai import ChatXAI
-            return ChatXAI(
-                model=self._settings.grok_model,
-                xai_api_key=self._settings.xai_api_key,
-                temperature=0.0,
-                max_tokens=1024,
-            )
-        except ImportError:
-            from langchain_openai import ChatOpenAI
-            return ChatOpenAI(
-                model=self._settings.grok_model,
-                api_key=self._settings.xai_api_key,
-                base_url="https://api.x.ai/v1",
-                temperature=0.0,
-                max_tokens=1024,
-            )
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(
+            model=self._settings.llm_model,
+            api_key=self._settings.api_key,
+            base_url=self._settings.base_url,
+            temperature=0.0,
+            max_tokens=1024,
+        )
 
     # ------------------------------------------------------------------
     # Public API
@@ -159,8 +153,8 @@ class RAGChain:
             )
 
         # 3. Load conversation history from memory
-        chat_history: List[BaseMessage] = (
-            memory.load_memory_variables({}).get("chat_history", [])
+        chat_history: List[BaseMessage] = memory.load_memory_variables({}).get(
+            "chat_history", []
         )
 
         # 4. Build structured prompt

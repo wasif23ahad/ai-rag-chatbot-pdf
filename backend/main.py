@@ -17,8 +17,14 @@ Routes:
   - GET  /api/health
 """
 
+import os
+import uvicorn
 from contextlib import asynccontextmanager
 from pathlib import Path
+
+# Ensure we run from the backend directory so Python can find the 'app' module
+_backend_dir = Path(__file__).parent.resolve()
+os.chdir(_backend_dir)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -99,3 +105,6 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -27,6 +27,6 @@ async def health() -> HealthResponse:
         index_loaded=vector_store.is_loaded(),
         chunk_count=vector_store.get_chunk_count(),
         active_sessions=memory_store.get_session_count(),
-        model=settings.grok_model,
+        model=settings.llm_model,
         embedding_model=settings.embedding_model.split("/")[-1],
     )
