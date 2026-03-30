@@ -1,0 +1,53 @@
+# ── Environment (NEVER commit secrets) ──────────────────────────────────────
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[oc]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# ── Virtual environments ─────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+
+# ── uv ───────────────────────────────────────────────────────────────────────
+# uv.lock IS committed (reproducible installs) — do not add it here
+
+# ── Tests (local only — not pushed to GitHub) ─────────────────────────────────
+backend/tests/
+tests/
+
+# ── Runtime data (generated — never commit) ──────────────────────────────────
+backend/data/faiss_index/
+backend/data/uploads/
+backend/logs/
+
+# ── Frontend ─────────────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# ── Testing artifacts ────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
