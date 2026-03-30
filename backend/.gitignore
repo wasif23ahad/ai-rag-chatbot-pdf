@@ -11,6 +11,7 @@ __pycache__/
 # Virtual environments
 venv/
 .venv/
+pytest.ini
 
 # Runtime data
 data/faiss_index/

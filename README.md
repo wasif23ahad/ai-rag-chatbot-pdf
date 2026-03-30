@@ -547,6 +547,80 @@ pytest tests/test_guard_redteam.py -v
 | `test_guard.py` | Injection patterns, similarity gate, response validation |
 | `test_guard_redteam.py` | Adversarial attack scenarios (70+ test cases) |
 | `test_chat.py` | API endpoints, error handling, health checks |
+| `test_memory_store.py` | Session memory management, thread safety |
+| `test_vector_store.py` | FAISS index operations, search functionality |
+| `test_rag_chain.py` | RAG pipeline, prompt building, response validation |
+| `test_document_processor.py` | Document parsing, text cleaning, chunking |
+
+---
+
+## 🚢 Deployment
+
+For free deployment on platforms like Render, Railway, or Fly.io, follow the guides below.
+
+#### 🌟 Recommended: Render (Easiest Setup)
+
+[Render](https://render.com) offers the easiest deployment experience with:
+- **Free tier**: 750 hours/month
+- Automatic deployments from GitHub
+- Built-in HTTPS
+- No Docker knowledge required
+
+**Steps:**
+```bash
+# 1. Push your code to GitHub
+git push origin main
+
+# 2. Go to render.com and sign up with GitHub
+
+# 3. Create a "Web Service" for the backend:
+#    - Connect your GitHub repo
+#    - Build Command: `cd backend && pip install -r requirements.txt`
+#    - Start Command: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+# 4. Create another "Web Service" for the frontend:
+#    - Build Command: `cd frontend && npm install && npm run build`
+#    - Start Command: `npx serve -s dist -l $PORT`
+
+# 5. Set environment variables in Render dashboard:
+#    - GROK_API_KEY
+#    - SECRET_KEY
+#    - ALLOWED_ORIGINS=https://your-frontend-url.onrender.com
+```
+
+#### Alternative: Railway
+
+[Railway](https://railway.app) is great for full-stack apps:
+- **Free tier**: $5 credit/month (enough for small projects)
+- One-click deployments
+- Automatic HTTPS
+
+```bash
+# 1. Install Railway CLI
+npm install -g @railway/cli
+
+# 2. Login and deploy
+railway login
+cd backend && railway init && railway up
+cd frontend && railway init && railway up
+```
+
+#### Alternative: Fly.io
+
+[Fly.io](https://fly.io) offers good container support:
+- **Free tier**: 3 shared VMs, 160GB outbound traffic
+- Fast global deployment
+
+```bash
+# 1. Install Fly CLI
+curl -L https://fly.io/install.sh | sh
+
+# 2. Deploy backend
+cd backend && fly launch && fly deploy
+
+# 3. Deploy frontend (static site)
+cd frontend && fly launch --image densetubu/fly.toml静态 && fly deploy
+```
 
 ---
 
