@@ -18,6 +18,10 @@ Routes:
 """
 
 import os
+import torch
+# Strictly override PyTorch internal thread pools at process startup to fit inside 512MB RAM
+torch.set_num_threads(1)
+
 import uvicorn
 from contextlib import asynccontextmanager
 from pathlib import Path

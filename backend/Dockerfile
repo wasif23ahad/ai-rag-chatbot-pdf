@@ -40,7 +40,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     OMP_NUM_THREADS=1 \
     MKL_NUM_THREADS=1 \
     OPENBLAS_NUM_THREADS=1 \
-    PYTORCH_NO_CUDA=1
+    PYTORCH_NO_CUDA=1 \
+    MALLOC_ARENA_MAX=2
+
+# Pre-download the model during the build to prevent downloading Ram-spikes at runtime
+RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('sentence-transformers/all-MiniLM-L6-v2')"
 
 # Expose port (Render uses $PORT, defaults to 10000)
 EXPOSE 8000
