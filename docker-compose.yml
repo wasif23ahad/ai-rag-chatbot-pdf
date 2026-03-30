@@ -1,0 +1,90 @@
+# ==============================================================================
+# Docker Compose - RAG Document Chatbot
+# ==============================================================================
+# Orchestrates backend (FastAPI) and frontend (React + Nginx) services
+# ==============================================================================
+
+version: "3.9"
+
+services:
+  # --------------------------------------------------------------------------
+  # Backend Service - FastAPI + FAISS + Grok LLM
+  # --------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rag-chatbot-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      # Persist FAISS index between restarts
+      - faiss_data:/app/data
+      # Persist uploaded documents
+      - uploads_data:/app/data/uploads
+      # Persist logs
+      - ./backend/logs:/app/logs
+      # Cache HuggingFace models (download once, reuse forever)
+      - huggingface_cache:/app/.cache/huggingface
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - rag-network
+    # Ensure backend starts before frontend
+    depends_on:
+      - backend
+
+  # --------------------------------------------------------------------------
+  # Frontend Service - React + Vite + Nginx
+  # --------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rag-chatbot-frontend
+    ports:
+      - "80:80"
+      - "5173:5173"
+    environment:
+      # Backend URL for API calls (used at build time)
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - rag-network
+
+# --------------------------------------------------------------------------
+# Named Volumes - Persist data between container restarts
+# --------------------------------------------------------------------------
+volumes:
+  # FAISS index data
+  faiss_data:
+    driver: local
+  # Uploaded documents
+  uploads_data:
+    driver: local
+  # HuggingFace model cache (avoid re-downloading on every build)
+  huggingface_cache:
+    driver: local
+
+# --------------------------------------------------------------------------
+# Network - Isolated network for inter-service communication
+# --------------------------------------------------------------------------
+networks:
+  rag-network:
+    driver: bridge
