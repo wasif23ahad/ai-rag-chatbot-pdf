@@ -1,50 +1,43 @@
 # ==============================================================================
-# Frontend Dockerfile - RAG Document Chatbot
+# Frontend Dockerfile — RAG Document Chatbot
 # ==============================================================================
-# Multi-stage build: Build stage + Nginx serving stage
+# Multi-stage: Node build → Nginx static serve
+# For Render: uses $PORT via envsubst in nginx config
 # ==============================================================================
 
-# ==============================================================================
-# Build stage
-# ==============================================================================
+# ── Stage 1: Build the React app ─────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
 COPY package.json package-lock.json* ./
-
-# Install dependencies
 RUN npm ci
 
-# Copy source files
 COPY . .
 
-# Build the Vite app
-# Note: VITE_API_URL should be set to the backend URL for production
-ENV VITE_API_URL=http://localhost:8000
+# VITE_API_URL is set at build-time via Render env vars or defaults to empty
+# (empty = same-origin, which is what we want when Nginx proxies /api)
+ARG VITE_API_URL=""
+ENV VITE_API_URL=$VITE_API_URL
+
 RUN npm run build
 
-# ==============================================================================
-# Nginx serving stage
-# ==============================================================================
+# ── Stage 2: Serve with Nginx ────────────────────────────────────────────────
 FROM nginx:1.25-alpine
 
-# Remove default nginx config
+# Remove default config
 RUN rm -rf /etc/nginx/conf.d/default.conf
 
-# Copy custom nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy the template (uses $PORT and $BACKEND_URL)
+COPY nginx.render.conf /etc/nginx/templates/default.conf.template
 
-# Copy built assets from builder stage
+# Copy built React assets
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port 80
+# Render injects $PORT — Nginx needs to listen on it
+ENV PORT=80
+ENV BACKEND_URL=http://localhost:8000
+
 EXPOSE 80
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost/ || exit 1
-
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

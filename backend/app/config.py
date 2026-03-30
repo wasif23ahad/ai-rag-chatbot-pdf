@@ -6,6 +6,8 @@ All values have safe defaults except API_KEY (required for LLM).
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Union
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Resolve .env path relative to this file's directory
@@ -46,11 +48,23 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_file: str = "./logs/app.log"
 
-    # CORS
-    allowed_origins: list[str] = ["http://localhost:5173", "http://localhost:80"]
+    # CORS — accepts comma-separated string from env var
+    allowed_origins: Union[list[str], str] = [
+        "http://localhost:5173",
+        "http://localhost:80",
+    ]
+
+    @field_validator("allowed_origins", mode="before")
+    @classmethod
+    def parse_origins(cls, v):
+        """Handle comma-separated ALLOWED_ORIGINS from environment variables."""
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
 
 @lru_cache
 def get_settings() -> Settings:
     """Return cached Settings instance — reads .env exactly once."""
     return Settings()
+
