@@ -14,6 +14,7 @@ not here. This chain assumes the question has already been cleared.
 """
 
 import time
+from copy import copy
 from dataclasses import dataclass, field
 from typing import List
 
@@ -23,6 +24,8 @@ from langchain.memory import ConversationBufferWindowMemory
 from app.core.embedder import Embedder
 from app.core.guard import Guard, REFUSAL_STRING
 from app.core.vector_store import VectorStoreManager, SearchResult
+from app.core.query_expansion import QueryExpander
+from app.core.contextual_compression import ContextualCompressor
 from app.config import get_settings
 
 # ---------------------------------------------------------------------------
@@ -80,12 +83,24 @@ class RAGChain:
         vector_store: VectorStoreManager,
         embedder: Embedder | None = None,
         guard: Guard | None = None,
+        use_query_expansion: bool = True,
+        use_compression: bool = True,
     ) -> None:
         self._vector_store = vector_store
         self._embedder = embedder or Embedder.get_instance()
         self._guard = guard or Guard()
         self._settings = get_settings()
         self._llm = self._build_llm()
+
+        # New improvements
+        self._query_expander = (
+            QueryExpander(max_variants=4) if use_query_expansion else None
+        )
+        self._compressor = (
+            ContextualCompressor(embedder=self._embedder, top_k_sentences=3)
+            if use_compression
+            else None
+        )
 
     def _build_llm(self):
         """
@@ -128,10 +143,16 @@ class RAGChain:
         """
         start_ms = time.time()
 
-        # 1. Retrieve top-k chunks from FAISS
-        chunks: List[SearchResult] = self._vector_store.search(
-            question, k=self._settings.faiss_top_k
-        )
+        # 1. Multi-query retrieval with expansion
+        if self._query_expander:
+            query_variants = self._query_expander.expand(question)
+            chunks: List[SearchResult] = self._vector_store.multi_query_search(
+                query_variants,
+                k_per_query=self._settings.faiss_top_k,
+                final_k=self._settings.faiss_top_k,
+            )
+        else:
+            chunks = self._vector_store.search(question, k=self._settings.faiss_top_k)
 
         scores = [r.similarity_score for r in chunks]
         max_score = max(scores) if scores else 0.0
@@ -152,15 +173,40 @@ class RAGChain:
                 processing_time_ms=elapsed,
             )
 
-        # 3. Load conversation history from memory
+        # 3. Contextual compression — extract relevant sentences from chunks
+        compressed_chunks = []
+        if self._compressor:
+            for chunk in chunks:
+                compressed = self._compressor.compress(
+                    chunk.document.page_content,
+                    question,
+                    threshold=0.4,  # Lower threshold for sentence-level matching
+                )
+                # Create a new document with compressed text
+                from copy import copy
+
+                new_doc = copy(chunk.document)
+                new_doc.page_content = compressed.compressed_text
+                compressed_chunks.append(
+                    SearchResult(
+                        document=new_doc,
+                        similarity_score=chunk.similarity_score,
+                        chunk_id=chunk.chunk_id,
+                        page=chunk.page,
+                    )
+                )
+        else:
+            compressed_chunks = chunks
+
+        # 4. Load conversation history from memory
         chat_history: List[BaseMessage] = memory.load_memory_variables({}).get(
             "chat_history", []
         )
 
-        # 4. Build structured prompt
-        messages = self._build_prompt(question, chunks, chat_history)
+        # 5. Build structured prompt
+        messages = self._build_prompt(question, compressed_chunks, chat_history)
 
-        # 5. Call Grok LLM
+        # 6. Call Grok LLM
         llm_response = self._llm.invoke(messages)
         raw_answer: str = llm_response.content.strip()
 
@@ -168,14 +214,15 @@ class RAGChain:
         if len(raw_answer) > 2000:
             raw_answer = raw_answer[:2000]
 
-        # 6. Validate response grounding
+        # 7. Validate response grounding
         is_grounded = self._guard.validate_response(raw_answer)
 
         elapsed = int((time.time() - start_ms) * 1000)
 
+        # Return compressed chunks as sources (more focused citations)
         return RAGResponse(
             answer=raw_answer,
-            sources=chunks,
+            sources=compressed_chunks,
             is_grounded=is_grounded,
             llm_called=True,
             max_similarity_score=max_score,

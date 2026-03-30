@@ -30,7 +30,7 @@ class SearchResult:
     """A single retrieved chunk with its similarity score."""
 
     document: Document
-    similarity_score: float   # [0, 1] — higher is more similar
+    similarity_score: float  # [0, 1] — higher is more similar
     chunk_id: str
     page: int
 
@@ -135,12 +135,11 @@ class VectorStoreManager:
         """
         if self._store is None:
             raise RuntimeError(
-                "FAISS index is not loaded. "
-                "Call build_index() or load_index() first."
+                "FAISS index is not loaded. Call build_index() or load_index() first."
             )
 
-        raw: List[tuple[Document, float]] = (
-            self._store.similarity_search_with_score(query, k=k)
+        raw: List[tuple[Document, float]] = self._store.similarity_search_with_score(
+            query, k=k
         )
 
         results: List[SearchResult] = []
@@ -158,6 +157,55 @@ class VectorStoreManager:
 
         results.sort(key=lambda r: r.similarity_score, reverse=True)
         return results
+
+    def multi_query_search(
+        self, queries: List[str], k_per_query: int = 4, final_k: int = 4
+    ) -> List[SearchResult]:
+        """
+        Search with multiple query variants and merge results.
+
+        This improves recall by finding chunks that match different
+        phrasings or aspects of the user's question.
+
+        Args:
+            queries:     List of query variants (from QueryExpander).
+            k_per_query: Number of results to retrieve per query.
+            final_k:     Number of unique results to return after merging.
+
+        Returns:
+            Deduplicated list of SearchResult, best matches first.
+        """
+        if self._store is None:
+            raise RuntimeError(
+                "FAISS index is not loaded. Call build_index() or load_index() first."
+            )
+
+        # Collect results from all queries
+        all_results: dict[str, SearchResult] = {}
+
+        for query in queries:
+            results = self.search(query, k=k_per_query)
+            for r in results:
+                chunk_id = r.chunk_id
+                # Keep the highest score if a chunk appears multiple times
+                if chunk_id not in all_results:
+                    all_results[chunk_id] = r
+                else:
+                    # Boost score if found by multiple queries (reciprocal rank fusion)
+                    all_results[chunk_id] = SearchResult(
+                        document=r.document,
+                        similarity_score=max(
+                            r.similarity_score, all_results[chunk_id].similarity_score
+                        ),
+                        chunk_id=chunk_id,
+                        page=r.page,
+                    )
+
+        # Sort by score and return top-k
+        sorted_results = sorted(
+            all_results.values(), key=lambda r: r.similarity_score, reverse=True
+        )
+        return sorted_results[:final_k]
 
     # ------------------------------------------------------------------
     # State queries
