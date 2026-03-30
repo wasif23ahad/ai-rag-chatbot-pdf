@@ -43,7 +43,7 @@ INJECTION_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
     (
         "instruction_override",
         re.compile(
-            r"ignore\s+(previous|all|your|the|any|prior)\s+"
+            r"ignore\s+(all|previous|your|the|any|prior)?(\s+(all|previous|your|the|any|prior))*\s+"
             r"(instructions?|rules?|prompts?|constraints?|context|guidelines?)",
             re.IGNORECASE,
         ),
@@ -58,8 +58,8 @@ INJECTION_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
     (
         "disregard",
         re.compile(
-            r"disregard\s+(all|your|previous|the|any|prior)\s+"
-            r"(instructions?|rules?|context|constraints?|guidelines?)",
+            r"disregard\s+(all\s+)?(your\s+)?(previous\s+)?"
+            r"(instructions?|rules?|context|constraints?|guidelines?)?",
             re.IGNORECASE,
         ),
     ),
@@ -67,7 +67,7 @@ INJECTION_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
         "override_system",
         re.compile(
             r"(override|bypass|circumvent|neutralise|neutralize|nullify)\s+"
-            r"(your\s+)?(system|instructions?|rules?|constraints?|filters?|safety)",
+            r"(all\s+|the\s+|your\s+)?(system|instructions?|rules?|constraints?|filters?|safety)",
             re.IGNORECASE,
         ),
     ),
@@ -75,11 +75,10 @@ INJECTION_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
         "prior_instructions",
         re.compile(
             r"(disregard|cancel|erase|delete|remove|clear)\s+(all\s+)?"
-            r"(prior|previous|earlier|above|preceding)\s+(instructions?|rules?|context)",
+            r"(prior|previous|earlier|above|preceding)\s+(instructions?|rules?|context)?",
             re.IGNORECASE,
         ),
     ),
-
     # -----------------------------------------------------------------------
     # Category 2: Role / persona injection
     # -----------------------------------------------------------------------
@@ -125,7 +124,6 @@ INJECTION_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
             re.IGNORECASE,
         ),
     ),
-
     # -----------------------------------------------------------------------
     # Category 3: Special / delimiter injection
     # -----------------------------------------------------------------------
@@ -139,7 +137,6 @@ INJECTION_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
             re.IGNORECASE,
         ),
     ),
-
     # -----------------------------------------------------------------------
     # Category 4: Encoding / obfuscation tricks
     # -----------------------------------------------------------------------
@@ -168,7 +165,6 @@ INJECTION_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
             re.IGNORECASE,
         ),
     ),
-
     # -----------------------------------------------------------------------
     # Category 5: Context poisoning via question framing
     # -----------------------------------------------------------------------
@@ -189,7 +185,6 @@ INJECTION_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
             re.IGNORECASE,
         ),
     ),
-
     # -----------------------------------------------------------------------
     # Category 6: Known jailbreak keywords
     # -----------------------------------------------------------------------
@@ -202,7 +197,6 @@ INJECTION_PATTERNS: List[Tuple[str, re.Pattern[str]]] = [
             re.IGNORECASE,
         ),
     ),
-
     # -----------------------------------------------------------------------
     # Category 7: Subtle override / system manipulation phrases
     # -----------------------------------------------------------------------

@@ -44,7 +44,6 @@ COPY --from=builder /app/.venv /app/.venv
 
 # Copy application code (not .env - it's mounted at runtime)
 COPY app/ ./app/
-COPY main.py ./
 
 # Create data and logs directories
 RUN mkdir -p /app/data/faiss_index /app/data/uploads /app/logs && \
@@ -67,4 +66,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/api/health || exit 1
 
 # Run with uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
