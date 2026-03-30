@@ -80,9 +80,9 @@ The **RAG Document Chatbot** is a production-ready retrieval-augmented generatio
         │          │  └──────┬──────┘  └──────┬──────┘  │
         │          │         │                │         │
         │          │  ┌──────▼──────────────────────┐   │
-        │          │  │      RAG Chain (LangChain)   │  │
+        │          │  │      RAG Chain (LangChain)  │   │
         │          │  │  Retriever → Gate → LLM     │   │
-        │          │  └──────┬───────────────────────┘  │
+        │          │  └──────┬──────────────────────┘   │
         │          └─────────┼──────────────────────────┘
         │                    │
         │          ┌─────────┼──────────────────┐
