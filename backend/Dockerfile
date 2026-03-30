@@ -21,8 +21,9 @@ WORKDIR /app
 # ── Dependency layer (cached unless pyproject.toml/uv.lock change) ──────────
 COPY pyproject.toml uv.lock ./
 
-# Install into the system Python — no venv needed inside Docker
-RUN uv sync --system --no-install-project --no-dev
+# Install into a fast uv .venv
+RUN uv sync --locked --no-install-project --no-dev
+ENV PATH="/app/.venv/bin:$PATH"
 
 # ── Application code ────────────────────────────────────────────────────────
 COPY app/ ./app/
