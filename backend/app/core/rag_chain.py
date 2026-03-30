@@ -96,11 +96,8 @@ class RAGChain:
         self._query_expander = (
             QueryExpander(max_variants=4) if use_query_expansion else None
         )
-        self._compressor = (
-            ContextualCompressor(embedder=self._embedder, top_k_sentences=3)
-            if use_compression
-            else None
-        )
+        # Disable compression - it was removing actual content
+        self._compressor = None
 
     def _build_llm(self):
         """
