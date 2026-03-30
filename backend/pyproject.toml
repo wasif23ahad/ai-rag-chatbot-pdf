@@ -7,31 +7,25 @@ dependencies = [
     # Web framework
     "fastapi==0.115.6",
     "uvicorn[standard]==0.30.6",
-
     # LangChain ecosystem
     "langchain==0.3.25",
     "langchain-community==0.3.23",
     "langchain-xai==0.2.1",
     "langchain-huggingface==0.1.2",
-
     # Vector store
     "faiss-cpu==1.9.0",
-
     # Embeddings
     "sentence-transformers==3.4.1",
-
     # Document parsing
     "pypdf==5.4.0",
     "python-docx==1.1.2",
-
     # Configuration
     "pydantic-settings==2.8.1",
-
     # File upload
     "python-multipart==0.0.20",
-
     # Utilities
     "numpy==2.2.4",
+    "reportlab>=4.4.10",
 ]
 
 [dependency-groups]
