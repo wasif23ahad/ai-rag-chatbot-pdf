@@ -113,14 +113,33 @@ class DocumentProcessor:
                 raw_paragraphs.append(text)
 
         # Merge short paragraphs (likely headers) with following content
+        # For resumes/structured docs: keep merging until we have substantial content
         merged: List[str] = []
         i = 0
         while i < len(raw_paragraphs):
             current = raw_paragraphs[i]
-            # If current is short (likely a header) and there's a next paragraph, merge them
-            if len(current) < 100 and i + 1 < len(raw_paragraphs):
-                merged.append(current + "\n\n" + raw_paragraphs[i + 1])
-                i += 2
+            # Detect section headers: short, often all caps or title case
+            is_likely_header = len(current) < 100 and (
+                current.isupper()
+                or current.istitle()
+                or "SUMMARY" in current.upper()
+                or "EXPERIENCE" in current.upper()
+            )
+
+            if is_likely_header and i + 1 < len(raw_paragraphs):
+                # Merge header with following paragraphs until substantial content
+                combined = current
+                j = i + 1
+                content_length = len(current)
+                while j < len(raw_paragraphs) and content_length < 800:
+                    combined += "\n\n" + raw_paragraphs[j]
+                    content_length += len(raw_paragraphs[j])
+                    j += 1
+                    # Stop if we've added enough content or hit next header
+                    if content_length >= 400:
+                        break
+                merged.append(combined)
+                i = j
             else:
                 merged.append(current)
                 i += 1
