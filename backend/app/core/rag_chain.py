@@ -174,19 +174,30 @@ class RAGChain:
             )
 
         # 3. Contextual compression — extract relevant sentences from chunks
+        # Only compress large chunks (>500 chars) to avoid losing context on small chunks
         compressed_chunks = []
         if self._compressor:
             for chunk in chunks:
+                # Skip compression for small chunks to preserve full context
+                if len(chunk.document.page_content) < 500:
+                    compressed_chunks.append(chunk)
+                    continue
+
                 compressed = self._compressor.compress(
                     chunk.document.page_content,
                     question,
-                    threshold=0.4,  # Lower threshold for sentence-level matching
+                    threshold=0.35,  # Slightly lower threshold
                 )
                 # Create a new document with compressed text
                 from copy import copy
 
                 new_doc = copy(chunk.document)
-                new_doc.page_content = compressed.compressed_text
+                # Use compressed text only if it's substantial (avoid just headers)
+                if len(compressed.compressed_text) > 100:
+                    new_doc.page_content = compressed.compressed_text
+                else:
+                    # Fall back to original if compression is too aggressive
+                    new_doc.page_content = chunk.document.page_content
                 compressed_chunks.append(
                     SearchResult(
                         document=new_doc,
