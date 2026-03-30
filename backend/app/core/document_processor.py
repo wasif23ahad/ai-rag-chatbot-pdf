@@ -90,23 +90,40 @@ class DocumentProcessor:
         Extract paragraphs and table cells from a DOCX file.
         DOCX has no native page numbers — paragraph index is used instead.
 
+        Merges short paragraphs (likely headers) with following content to avoid
+        orphaned headers in separate chunks.
+
         Returns:
             List of (text, index) tuples — empty paragraphs are skipped.
 
         Raises:
             ValueError: If no extractable text is found.
         """
-        from docx import Document as DocxDocument  # imported here to keep module import fast
+        from docx import (
+            Document as DocxDocument,
+        )  # imported here to keep module import fast
 
         doc = DocxDocument(path)
-        items: List[Tuple[str, int]] = []
-        idx = 1
+        raw_paragraphs: List[str] = []
 
+        # Collect all non-empty paragraphs
         for para in doc.paragraphs:
             text = self._clean_text(para.text)
             if text:
-                items.append((text, idx))
-                idx += 1
+                raw_paragraphs.append(text)
+
+        # Merge short paragraphs (likely headers) with following content
+        merged: List[str] = []
+        i = 0
+        while i < len(raw_paragraphs):
+            current = raw_paragraphs[i]
+            # If current is short (likely a header) and there's a next paragraph, merge them
+            if len(current) < 100 and i + 1 < len(raw_paragraphs):
+                merged.append(current + "\n\n" + raw_paragraphs[i + 1])
+                i += 2
+            else:
+                merged.append(current)
+                i += 1
 
         # Tables are not in doc.paragraphs — iterate separately
         for table in doc.tables:
@@ -114,13 +131,13 @@ class DocumentProcessor:
                 for cell in row.cells:
                     text = self._clean_text(cell.text)
                     if text:
-                        items.append((text, idx))
-                        idx += 1
+                        merged.append(text)
 
-        if not items:
+        if not merged:
             raise ValueError("No extractable text found in DOCX.")
 
-        return items
+        # Return as list of (text, index) tuples
+        return [(text, idx + 1) for idx, text in enumerate(merged)]
 
     def _clean_text(self, text: str) -> str:
         """
@@ -148,7 +165,8 @@ class DocumentProcessor:
 
         # Drop purely decorative lines
         lines = [
-            line for line in text.split("\n")
+            line
+            for line in text.split("\n")
             if not re.match(r"^[\s\-=_\*\.]{3,}$", line.strip())
         ]
         text = "\n".join(lines)
