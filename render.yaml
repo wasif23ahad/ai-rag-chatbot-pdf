@@ -11,56 +11,8 @@
 # ==============================================================================
 
 services:
-  # --------------------------------------------------------------------------
-  # Backend — FastAPI + FAISS + Grok LLM
-  # --------------------------------------------------------------------------
-  - type: web
-    name: rag-chatbot-backend
-    runtime: docker
-    plan: free
-    rootDir: backend
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    healthCheckPath: /api/health
-    envVars:
-      # Required — set your real API key in the Render Dashboard
-      - key: API_KEY
-        sync: false                    # Prompts you to enter a value on deploy
-      - key: BASE_URL
-        value: "https://api.groq.com/openai/v1"
-      - key: LLM_MODEL
-        value: "llama-3.3-70b-versatile"
-      # Embedding model (downloaded on first request)
-      - key: EMBEDDING_MODEL
-        value: "sentence-transformers/all-MiniLM-L6-v2"
-      # FAISS
-      - key: FAISS_INDEX_PATH
-        value: "./data/faiss_index"
-      - key: FAISS_TOP_K
-        value: "4"
-      - key: SIMILARITY_THRESHOLD
-        value: "0.4"
-      # Chunking
-      - key: CHUNK_SIZE
-        value: "800"
-      - key: CHUNK_OVERLAP
-        value: "100"
-      # Session memory
-      - key: MAX_MEMORY_TURNS
-        value: "10"
-      # Logging
-      - key: LOG_LEVEL
-        value: "INFO"
-      - key: LOG_FILE
-        value: "./logs/app.log"
-      # CORS — will be updated after frontend deploys
-      - key: ALLOWED_ORIGINS
-        value: "https://rag-chatbot-frontend.onrender.com,http://localhost:5173"
-      # HuggingFace cache
-      - key: TRANSFORMERS_CACHE
-        value: "/app/.cache/huggingface"
-      - key: HF_HOME
-        value: "/app/.cache/huggingface"
+  # Backend has been successfully migrated to Hugging Face Spaces to bypass Render's 512MB RAM limit.
+  # Do not deploy the backend on Render anymore.
 
   # --------------------------------------------------------------------------
   # Frontend — React (Vite build) + Nginx
