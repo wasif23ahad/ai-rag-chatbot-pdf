@@ -63,9 +63,9 @@ The **RAG Document Chatbot** is a production-ready retrieval-augmented generatio
 
 ### Video Demo
 <!-- Add your demo video link here -->
-🎥 **[Watch Demo Video](YOUR_VIDEO_LINK_HERE)**
+🎥 **[Watch Demo Video](https://www.loom.com/share/c30d6c7b00454b178c955b1e2769b8c2)**
 
-> Click the image above to watch a 2-minute demonstration of the RAG Document Chatbot in action.
+> Click the link above to watch a 2-minute demonstration of the RAG Document Chatbot in action.
 
 ---
 
@@ -628,7 +628,7 @@ curl -L https://fly.io/install.sh | sh
 cd backend && fly launch && fly deploy
 
 # 3. Deploy frontend (static site)
-cd frontend && fly launch --image densetubu/fly.toml静态 && fly deploy
+cd frontend && fly launch --image densetubu/fly.toml && fly deploy
 ```
 
 ---
