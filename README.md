@@ -480,16 +480,10 @@ HTTP 400
 ![Project Overview](frontend/public/ProjectOverview.png)
 
 ### Chat Interface
-<!-- Upload a screenshot showing the chat window with messages -->
-```
-[SCREENSHOT: ChatWindow with user question and AI response]
-```
+![Chat Interface](frontend/public/ChatInterface.png)
 
 ### Source Citations
-<!-- Upload a screenshot showing the expandable source panel -->
-```
-[SCREENSHOT: SourceCitation expanded showing chunk previews and similarity badges]
-```
+![Source Citation](frontend/public/SourceCitation.png)
 
 ### Video Demo
 <!-- Add your demo video link here -->
