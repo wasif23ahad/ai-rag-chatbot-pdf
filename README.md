@@ -52,6 +52,12 @@ The **RAG Document Chatbot** is a production-ready retrieval-augmented generatio
 
 ## 📸 Screenshots & Demo
 
+### Video Demo
+<!-- Add your demo video link here -->
+🎥 **[Watch Demo Video](https://www.loom.com/share/c30d6c7b00454b178c955b1e2769b8c2)**
+
+> Click the link above to watch a 2-minute demonstration of the RAG Document Chatbot in action.
+
 ### Project Screenshot
 ![Project Overview](frontend/public/ProjectOverview.png)
 
@@ -61,11 +67,6 @@ The **RAG Document Chatbot** is a production-ready retrieval-augmented generatio
 ### Source Citations
 ![Source Citation](frontend/public/SourceCitation.png)
 
-### Video Demo
-<!-- Add your demo video link here -->
-🎥 **[Watch Demo Video](https://www.loom.com/share/c30d6c7b00454b178c955b1e2769b8c2)**
-
-> Click the link above to watch a 2-minute demonstration of the RAG Document Chatbot in action.
 
 ---
 
