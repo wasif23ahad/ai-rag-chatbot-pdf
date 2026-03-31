@@ -2,6 +2,8 @@
 
 > **AI-powered document intelligence platform** — Upload PDFs or DOCX files and chat with their contents using natural language. Powered by xAI Grok, FAISS vector search, and a modern React frontend.
 
+🚀 **[Try the Live Demo here!](https://rag-chatbot-frontend-6dv6.onrender.com/)**
+
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
@@ -474,11 +476,8 @@ HTTP 400
 
 ## 📸 Screenshots & Demo
 
-### Upload Panel
-<!-- Upload a screenshot showing the drag-and-drop interface here -->
-```
-[SCREENSHOT: UploadPanel with drag-and-drop zone]
-```
+### Project Screenshot
+![Project Overview](frontend/public/ProjectOverview.png)
 
 ### Chat Interface
 <!-- Upload a screenshot showing the chat window with messages -->
