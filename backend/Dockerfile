@@ -46,6 +46,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Pre-download the model during the build to prevent downloading Ram-spikes at runtime
 RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('sentence-transformers/all-MiniLM-L6-v2')"
 
+# HuggingFace tightly restricts the runtime to 'uid=1000'. 
+# We must ensure this external uid has full read/write access to the root-created /app directory!
+RUN chmod -R 777 /app
+
 # Expose port (Hugging Face Spaces strict requirement: 7860)
 EXPOSE 7860
 
