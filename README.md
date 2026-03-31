@@ -15,6 +15,7 @@
 ## 📋 Table of Contents
 
 - [Overview](#-overview)
+- [Screenshots & Demo](#-screenshots--demo)
 - [Architecture](#-architecture)
 - [Tech Stack](#-tech-stack)
 - [Features](#-features)
@@ -23,7 +24,6 @@
 - [API Reference](#-api-reference)
 - [Hallucination Prevention](#-hallucination-prevention)
 - [Security](#-security)
-- [Screenshots & Demo](#-screenshots--demo)
 - [Development Time](#-development-time)
 - [Testing](#-testing)
 - [Contributing](#-contributing)
@@ -46,6 +46,25 @@ The **RAG Document Chatbot** is a production-ready retrieval-augmented generatio
 - 📊 **Source Transparency**: Every answer includes cited chunks with page numbers and similarity scores
 - 💾 **Persistent Index**: FAISS vector index survives server restarts
 - 🐳 **One-Command Deploy**: `docker-compose up --build` starts the entire stack
+
+---
+
+## 📸 Screenshots & Demo
+
+### Project Screenshot
+![Project Overview](frontend/public/ProjectOverview.png)
+
+### Chat Interface
+![Chat Interface](frontend/public/ChatInterface.png)
+
+### Source Citations
+![Source Citation](frontend/public/SourceCitation.png)
+
+### Video Demo
+<!-- Add your demo video link here -->
+🎥 **[Watch Demo Video](YOUR_VIDEO_LINK_HERE)**
+
+> Click the image above to watch a 2-minute demonstration of the RAG Document Chatbot in action.
 
 ---
 
@@ -474,25 +493,6 @@ HTTP 400
 
 ---
 
-## 📸 Screenshots & Demo
-
-### Project Screenshot
-![Project Overview](frontend/public/ProjectOverview.png)
-
-### Chat Interface
-![Chat Interface](frontend/public/ChatInterface.png)
-
-### Source Citations
-![Source Citation](frontend/public/SourceCitation.png)
-
-### Video Demo
-<!-- Add your demo video link here -->
-🎥 **[Watch Demo Video](YOUR_VIDEO_LINK_HERE)**
-
-> Click the image above to watch a 2-minute demonstration of the RAG Document Chatbot in action.
-
----
-
 ## ⏱ Development Time
 
 | Task | Description | Time |
@@ -653,6 +653,8 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 ## 📧 Contact
 
 **Mohammad Wasif Ahad**
+- Email: [wasifahad300@gmail.com](mailto:wasifahad300@gmail.com)
+- LinkedIn: [wasifahad](https://www.linkedin.com/in/wasifahad/)
 - GitHub: [@wasif23ahad](https://github.com/wasif23ahad)
 - Project: [https://github.com/wasif23ahad/ai-rag-chatbot-pdf](https://github.com/wasif23ahad/ai-rag-chatbot-pdf)
 
