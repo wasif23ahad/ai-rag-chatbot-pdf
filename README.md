@@ -16,8 +16,9 @@
 
 - [Overview](#-overview)
 - [Screenshots & Demo](#-screenshots--demo)
-- [Architecture](#-architecture)
-- [Tech Stack](#-tech-stack)
+- [Architecture Overview](#-architecture-overview)
+- [Technical Explanation](#️-technical-explanation)
+- [Libraries/Tools Used & Justification of Design Decisions](#-librariestools-used--justification-of-design-decisions)
 - [Features](#-features)
 - [Quick Start](#-quick-start)
 - [Local Development](#-local-development)
@@ -68,7 +69,7 @@ The **RAG Document Chatbot** is a production-ready retrieval-augmented generatio
 
 ---
 
-## 🏗 Architecture
+## 🏗 Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -122,6 +123,12 @@ The **RAG Document Chatbot** is a production-ready retrieval-augmented generatio
                      └───────────────┘
 ```
 
+## ⚙️ Technical Explanation
+
+The RAG (Retrieval-Augmented Generation) pipeline operates in two primary phases: **Ingestion** and **Querying**.
+1. **Ingestion Phase**: Uploaded PDF or DOCX documents are processed using `pypdf`/`python-docx`, cleaned of artifacts, and split into smaller, semantically meaningful text chunks (with overlap) using `RecursiveCharacterTextSplitter`. These chunks are then converted into numerical embeddings via a local Hugging Face `sentence-transformers` model and stored efficiently in a persistent local `FAISS` vector index.
+2. **Querying Phase**: When a user submits a question, the system generates an embedding for the prompt and performs a cosine-similarity search against the FAISS index to retrieve the top 4 most relevant document chunks. These chunks pass through a strict similarity threshold gate (L1 Hallucination Guard). If successful, the chunks form the context for the xAI Grok LLM which synthesizes a grounded, highly accurate response while enforcing a strict zero-hallucination policy.
+
 ### Data Flow
 
 ```
@@ -167,7 +174,7 @@ The **RAG Document Chatbot** is a production-ready retrieval-augmented generatio
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Libraries/Tools Used & Justification of Design Decisions
 
 | Layer | Technology | Justification |
 |-------|------------|---------------|
@@ -184,6 +191,15 @@ The **RAG Document Chatbot** is a production-ready retrieval-augmented generatio
 | **File Upload** | [react-dropzone](https://react-dropzone.js.org/) | Drag-and-drop with validation, progress tracking |
 | **Container** | [Docker](https://www.docker.com/) + [Docker Compose](https://docs.docker.com/compose/) | Reproducible environments, easy deployment |
 | **Web Server** | [Nginx](https://nginx.org/) | Static file serving, reverse proxy, gzip compression |
+
+### Justification of Design Decisions
+
+In addition to the library-specific justifications in the table above, the overall system architecture was driven by four core design decisions:
+
+1. **Local Vector Indexing (FAISS) vs Managed Databases**: Relying on local CPU-based tools (`sentence-transformers` and FAISS) tightly couples ingestion and search, eliminating network latency and API costs associated with calling managed external databases like Pinecone or OpenAI Embeddings. This ensures the project is 100% self-contained and reproducible within Docker without requiring external database provisioning.
+2. **Three-Layer Hallucination Guardrail Architecture**: While standard RAG systems rely primarily on LLM system prompts, we engineered a rigorous three-layer pipeline. This includes a robust pre-LLM similarity threshold gate (preventing the LLM from firing if no relevant context exists, saving API costs), prompt injection pattern matching, and post-generation refusal validation. This mathematically guarantees zero hallucinations.
+3. **Hybrid Decoupled Deployment (Render + Hugging Face)**: While originally designed as a unified Docker monolithic service, managing heavy local embedding models required structural decoupling for production. By utilizing a hybrid deployment strategy, the React UI is globally served via Render's CDN, and its internal Nginx web server securely proxies high-compute traffic directly to a 16GB RAM Hugging Face ML Space, perfectly resolving Out-of-Memory (OOM) issues on free-tier hosting limits.
+4. **Deterministic LLM Generation (Temperature 0.0)**: To ensure absolute adherence to the explicitly provided RAG context boundaries, the xAI Grok model is strictly locked at a `0.0` sampling temperature, prioritizing factual, grounded answers and entirely paralyzing creative variances.
 
 ---
 
