@@ -46,12 +46,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Pre-download the model during the build to prevent downloading Ram-spikes at runtime
 RUN python -c "from huggingface_hub import snapshot_download; snapshot_download('sentence-transformers/all-MiniLM-L6-v2')"
 
-# Expose port (Render uses $PORT, defaults to 10000)
-EXPOSE 8000
+# Expose port (Hugging Face Spaces strict requirement: 7860)
+EXPOSE 7860
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:${PORT:-8000}/api/health || exit 1
+    CMD curl -f http://localhost:7860/api/health || exit 1
 
-# Start uvicorn — Render injects $PORT automatically
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Start uvicorn (Hardcoded 7860 for HF)
+CMD uvicorn app.main:app --host 0.0.0.0 --port 7860
