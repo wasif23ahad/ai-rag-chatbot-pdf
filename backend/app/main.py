@@ -18,17 +18,9 @@ Routes:
 """
 
 import os
-import torch
-# Strictly override PyTorch internal thread pools at process startup to fit inside 512MB RAM
-torch.set_num_threads(1)
-
 import uvicorn
 from contextlib import asynccontextmanager
 from pathlib import Path
-
-# Ensure we run from the backend directory so Python can find the 'app' module
-_backend_dir = Path(__file__).parent.resolve()
-os.chdir(_backend_dir)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
